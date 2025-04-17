@@ -43,26 +43,51 @@ class Main_guy(pygame.sprite.Sprite):
         self.vision_radius = 250
 
 
+    # def check_collision(self, level):
+    #     left = int(self.rect.left // TILE_SIZE)
+    #     right = int(self.rect.right // TILE_SIZE)
+    #     top = int(self.rect.top // TILE_SIZE)
+    #     bottom = int(self.rect.bottom // TILE_SIZE)
+    #
+    #     # Iterate only through the relevant tiles
+    #     self.on_ground = False
+    #     for row in range(top, bottom + 1):
+    #         for col in range(left, right + 1):
+    #             # Ensure grid indices are within bounds
+    #             if 0 <= row < len(level.tile_grid) and 0 <= col < len(level.tile_grid[row]):
+    #                 tile = level.tile_grid[row][col]
+    #                 if tile and tile.solid:
+    #                     # Check for collision
+    #                     if pygame.sprite.collide_rect(self, tile):
+    #                         self.on_ground = True
+    #                         self.velocity[1] = 0  # Stop vertical velocity
+    #                         self.position[1] = tile.rect.top - self.rect.height + 4
+    #                         return
     def check_collision(self, level):
         left = int(self.rect.left // TILE_SIZE)
         right = int(self.rect.right // TILE_SIZE)
         top = int(self.rect.top // TILE_SIZE)
         bottom = int(self.rect.bottom // TILE_SIZE)
 
-        # Iterate only through the relevant tiles
         self.on_ground = False
+
         for row in range(top, bottom + 1):
             for col in range(left, right + 1):
-                # Ensure grid indices are within bounds
                 if 0 <= row < len(level.tile_grid) and 0 <= col < len(level.tile_grid[row]):
                     tile = level.tile_grid[row][col]
                     if tile and tile.solid:
-                        # Check for collision
-                        if pygame.sprite.collide_rect(self, tile):
-                            self.on_ground = True
-                            self.velocity[1] = 0  # Stop vertical velocity
-                            self.position[1] = tile.rect.top - self.rect.height + 4
-                            return
+                        if self.rect.colliderect(tile.rect) and not self.on_ground:
+                            # Simple bottom collision check (falling onto a tile)
+                            if self.velocity[1] >= 0 and self.rect.bottom >= tile.rect.top:
+                                self.on_ground = True
+                                self.velocity[1] = 0  # Stop vertical velocity
+                                self.position[1] = tile.rect.top - self.rect.height + 4
+                                return
+                            # Hitting head on a tile
+                            elif self.velocity[1] < 0 and self.rect.top >= tile.rect.bottom - 20:
+                                self.rect.top = tile.rect.bottom
+                                self.position[1] = self.rect.y + 5
+                                self.velocity[1] = 0
 
 
 
@@ -143,9 +168,10 @@ class Main_guy(pygame.sprite.Sprite):
         self.rect.topleft = self.position
 
 
-    def draw(self):
+    def draw(self, rect):
+        self.rect = rect
         screen.blit(self.image, self.rect.topleft)
-        # screen.blit(self.frame, [self.rect.topleft[0] - 8, self.rect.topleft[1] - 8])
+
 
     def effect(self):
         if self.circles_list.__len__() <= 10:

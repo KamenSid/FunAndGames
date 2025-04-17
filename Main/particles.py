@@ -1,6 +1,4 @@
-import random
 
-import pygame.sprite
 from enemies import Enemy
 from main_guy import *
 from surfaces import Surface
@@ -15,13 +13,6 @@ player = Main_guy([250, 300])
 enemies = []
 effects = []
 ground_items = []
-# land = Surface([100, 400])
-# land2 = Surface([600, 400])
-# land3 = Surface([300, 500])
-# main_land = Surface([0, 850])
-# main_land2 = Surface([300, 850])
-# main_land3 = Surface([600, 850])
-# lands.extend([land, land2, land3, main_land, main_land2, main_land3])
 enemy = Enemy([620, 300])
 enemies.append(enemy)
 test_item = Item(test_item_1_image, {"speed": 0.5}, [500, 800])
@@ -76,22 +67,20 @@ while running:
                         enemy.stats.helth -= 30
         if pygame.sprite.collide_rect(player, enemy):
             enemy.stats.helth -= 25
-        if enemy.stats.helth > 0:
-            enemy.draw()
-        else:
+        if enemy.stats.helth < 0:
             enemies.remove(enemy)
             player.stats.gold += enemy.stats.gold
             print(player.stats.gold)
 
     player.update(keys, level, enemies)
-    player.draw()
+
 
     effects.extend(player.circles_list)
     player.circles_list = []
     for effect in effects:
         effect.update()
     effects = [effect for effect in effects if effect.lifetime > 1]
-
+    level.camera.update(player)
     level.draw(players)
     pygame.display.flip()
 
